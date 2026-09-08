@@ -14,7 +14,7 @@ readonly MODULES_ENTWARE_DIR="$ENTWARE_DIR/lib/modules"
 readonly CURL_RESOLVE_FIX="--resolve release-assets.githubusercontent.com:443:185.199.108.133"
 readonly REPO_MAIN_BRANCH="https://raw.githubusercontent.com/jinndi/SKeen/refs/heads/main/"
 readonly SKEEN_NAME="SKeen"
-readonly SKEEN_VERSION="5.4.1"
+readonly SKEEN_VERSION="5.4.2"
 readonly SKEEN_PROC="skeen"
 readonly SKEEN_SCRIPT="$ENTWARE_DIR/bin/$SKEEN_PROC"
 readonly SKEEN_RUN_SCRIPT="/tmp/$SKEEN_PROC.sh"
@@ -995,9 +995,9 @@ fi
 echo "$ipt_list"
 }
 get_mark_policy(){
-local mark=""
+local mark="" seg=""
 if [ "$POLICY_ENABLED" = "1" ]&&[ -n "$POLICY_SEGMENT" ];then
-local seg=$(echo "$POLICY_SEGMENT"|tr '[:upper:]' '[:lower:]')
+seg="$(echo "$POLICY_SEGMENT"|tr '[:upper:]' '[:lower:]')"
 case "$seg" in
 br[0-9]|br[0-9][0-9])mark=$(iptables -t mangle -L -v -n|awk -v iface="$seg" '$0 ~ iface && /MARK set/ {print $NF}')
 ;;
@@ -1388,7 +1388,7 @@ goto_chain_rules "$iptables" "$table" OUTPUT "$CHAIN_OUTPUT"
 }
 release_version_ge5(){
 local major
-major=$(ndmc -c "show version"|awk '/release:/ {print $2}'|cut -d'.' -f1)
+major="$(ndmc -c "show version"|awk '/release:/ {print $2}'|cut -d'.' -f1)"
 if [ "$major" -lt 5 ];then
 echoerr "Версия KeeneticOS ниже 5-ой"&&return 1
 fi
@@ -2569,16 +2569,26 @@ echoerr "Исполняемый файл $SINGBOX_NAME отсутствует"
 fi
 }
 run_api(){
+local error_msg="Поддерживается только в $SINGBOX_NAME 1.14.0+"
 shift
-local version
 check_tty
 get_singbox_config
 if [ -f "$SINGBOX_BIN" ];then
+local version major minor
 version="$(get_current_version "sing")"
+major="${version%%.*}"
+minor="${version#1.}"
+minor="${minor%%.*}"
+if [ "$major" -eq 1 ]&&[ "$minor" -eq 14 ];then
 case "$version" in
-1.14*)"$SINGBOX_BIN" api "$@";;
-*)exiterr "Поддерживается только в $SINGBOX_NAME 1.14 +"
+*alpha*|*beta*)exiterr "$error_msg"
 esac
+fi
+if [ "${version%%.*}" -ge 1 ]&&[ "$minor" -ge 14 ];then
+"$SINGBOX_BIN" api "$@"
+else
+exiterr "$error_msg"
+fi
 else
 exiterr "Исполняемый файл $SINGBOX_NAME отсутствует"
 fi
@@ -2588,13 +2598,13 @@ local src_file="${1:-}"
 local target_dir="${2:-}"
 mkdir -p "$target_dir"
 local KEYS=""
-eval $(jsonfilter -i "$src_file" -e 'KEYS=@')
+eval "$(jsonfilter -i "$src_file" -e 'KEYS=@')"
 local schema_val=""
-schema_val=$(jsonfilter -i "$src_file" -e "@['\$schema']")
+schema_val="$(jsonfilter -i "$src_file" -e "@['\$schema']")"
 local schema_prefix=""
 if [ -n "$schema_val" ];then
-schema_val=$(echo "$schema_val"|sed 's#\\/#/#g')
-schema_prefix=$(printf '  "$schema": "%s",\n' "$schema_val")
+schema_val="$(echo "$schema_val"|sed 's#\\/#/#g')"
+schema_prefix="$(printf '  "$schema": "%s",\n' "$schema_val")"
 fi
 for key in $KEYS;do
 case "$key" in
@@ -2756,7 +2766,7 @@ output="$output\n  $(green "4.") Тестировать"
 output="$output\n  $(green "5.") Удаление"
 output="$output\n  $(green "0.") Выход\n"
 show_header
-echo -e "$output"
+printf '%b\n' "$output"
 max_attempts=3
 attempt=0
 while [ $attempt -lt $max_attempts ];do
