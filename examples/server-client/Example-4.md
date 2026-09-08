@@ -37,6 +37,8 @@ server {
   ssl_certificate      /root/certmagic/certificates/acme.zerossl.com-v2-dv90/wildcard_.mysite.com/wildcard_.mysite.com.crt;
   ssl_certificate_key  /root/certmagic/certificates/acme.zerossl.com-v2-dv90/wildcard_.mysite.com/wildcard_.mysite.com.key;
 
+  ssl_protocols TLSv1.2 TLSv1.3;
+
   # Путь (path) /static/get/video/chunk.ts - для примера.
   # Используйте свой путь.
   location /static/get/video/chunk.ts {
@@ -47,6 +49,7 @@ server {
 
     # Заголовки, передаваемые на бэкенд Xray.
     proxy_set_header Host              cdn.mysite.com; # Укажите ваш домен/субдомен CDN.
+    proxy_set_header Connection        "";
     proxy_set_header X-Real-IP         $remote_addr;
     proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
@@ -56,14 +59,15 @@ server {
     proxy_request_buffering          off;
     proxy_cache                      off;
     chunked_transfer_encoding        on;
+    gzip                             off;
 
     # Отключаем буферизацию ответа на стороне nginx и запрещаем кеширование.
     add_header X-Accel-Buffering     no always;
     add_header Cache-Control         "no-store, no-transform" always;
 
     # Увеличиваем таймауты для длительных соединений.
-    proxy_read_timeout               86400s;
-    proxy_send_timeout               86400s;
+    proxy_read_timeout               1h;
+    proxy_send_timeout               1h;
     client_max_body_size             0;
   }
 
@@ -83,6 +87,16 @@ server {
   location / {
     return 301 https://$host$request_uri;
   }
+}
+```
+
+Плюсом в /etc/nginx/nginx.conf заменяем блок events на следующий:
+
+```conf
+events {
+  worker_connections 10240;
+  use epoll;
+  multi_accept on;
 }
 ```
 
@@ -197,6 +211,14 @@ bash <(curl -Ls https://raw.githubusercontent.com/mhsanaei/3x-ui/master/install.
         "verifyPeerCertByName": ""
       }
     },
+    "externalProxy": [
+      {
+        "forceTls": "tls",
+        "dest": "cdn.mysite.com",
+        "port": 443,
+        "remark": ""
+      }
+    ],
     "sockopt": {
       "tcpcongestion": "bbr",
       "trustedXForwardedFor": [
@@ -224,9 +246,11 @@ bash <(curl -Ls https://raw.githubusercontent.com/mhsanaei/3x-ui/master/install.
 }
 ```
 
+В этом шаблоне выше измените в externalProxy[].dest на ваш домен CDN.
+
 3. В настройках, во вкладке «Безопасность», укажите свой SNI (адрес CDN, далее его настроим) и пути к сертификатам. Я использую всё те же wildcard-сертификаты ZeroSSL, полученные через ACME в sing-box.
 
-4. Создаём клиента и выбираем для него наше подключение. Обратите внимание: ссылка, которую мы получаем для этого клиента, требует модификации домена подключения на `cdn.mysite.com` и порта на `443`.
+4. Создаём клиента и выбираем для него наше подключение.
 
 # Конфигурация CDN
 
