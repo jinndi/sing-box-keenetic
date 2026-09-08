@@ -535,6 +535,7 @@ get_current_version() {
 
       local ver raw_output
       raw_output="$("$SINGBOX_BIN" version 2>/dev/null)"
+      # shellcheck disable=SC2086
       set -- $raw_output
       ver="${3:-unknown}"
 
@@ -793,7 +794,7 @@ download_singbox_config() {
   get_singbox_config
   local backup_config="${SINGBOX_CONFIG}.bak"
 
-  if [ "$act" != "force" ] && [ -f "$SINGBOX_CONFIG" ]; then
+  if [ "$action" != "force" ] && [ -f "$SINGBOX_CONFIG" ]; then
     echomsg "Configuration $SINGBOX_NAME found, skipping creation"
     return
   fi
@@ -813,7 +814,7 @@ download_singbox_config() {
     config_url="${REPO_MAIN_BRANCH}${config_name}"
   fi
 
-  if ! run_curl -o "$SINGBOX_CONFIG" $config_url; then
+  if ! run_curl -o "$SINGBOX_CONFIG" "$config_url"; then
     [ -f "$backup_config" ] && mv -f "$backup_config" "$SINGBOX_CONFIG"
     echoerr "Failed to download $SINGBOX_NAME configuration"
     return 1
@@ -1227,10 +1228,10 @@ get_iptables_list() {
 }
 
 get_mark_policy() {
-  local mark=""
+  local mark="" seg=""
 
   if [ "$POLICY_ENABLED" = "1" ] && [ -n "$POLICY_SEGMENT" ]; then
-    local seg=$(echo "$POLICY_SEGMENT" | tr '[:upper:]' '[:lower:]')
+    seg="$(echo "$POLICY_SEGMENT" | tr '[:upper:]' '[:lower:]')"
     case "$seg" in
       br[0-9]|br[0-9][0-9])
         mark=$(iptables -t mangle -L -v -n | awk -v iface="$seg" '$0 ~ iface && /MARK set/ {print $NF}')
@@ -1583,7 +1584,7 @@ add_skeen_rules() {
     fi
 
     for proto in $protocols; do
-      # shellcheck disable=SC2086
+      # shellcheck disable=SC2046
       add_rule "$iptables" "$table" "$chain" \
         -p "$proto" $(get_connmark_match_opt "$proto") -j TPROXY --on-ip "$PROXY_IP" \
         --on-port "$SKEEN_TPROXY_PORT" --tproxy-mark "$TABLE_MARK"
@@ -1608,7 +1609,7 @@ add_skeen_rules() {
 
   "redirect")
     add_conntrack_mark "$chain"
-    # shellcheck disable=SC2086
+    # shellcheck disable=SC2046
     add_rule "$iptables" "$table" "$chain" \
       -p "$protocols" $(get_connmark_match_opt "$protocols") -j REDIRECT --to-port "$SKEEN_REDIRECT_PORT"
     ;;
@@ -1714,7 +1715,7 @@ set_proxy_router_rules()  {
 
 release_version_ge5() {
   local major
-  major=  major=$(ndmc -c "show version" | awk '/release:/ {print $2}' | cut -d'.' -f1)
+  major="$(ndmc -c "show version" | awk '/release:/ {print $2}' | cut -d'.' -f1)"
 
   if [ "$major" -lt 5 ]; then
     echoerr "Release version KeeneticOS is lower than 5" && return 1
@@ -3165,7 +3166,7 @@ clean_cache() {
     cache_file_path="${WORK_DIR}/cache.db"
   else
     if ! echo "$cache_file_path" | grep -q "^/"; then
-      cache_file_path="${WORK_DIR}/${cache_file}"
+      cache_file_path="${WORK_DIR}/${cache_file_path}"
       if [ ! -f "$cache_file_path" ]; then
         echoerr "${msg_not_found}: $cache_file_path"
         return 0
@@ -3237,7 +3238,7 @@ run_api() {
   check_tty
   get_singbox_config
   if [ -f "$SINGBOX_BIN" ]; then
-    local version major minor 
+    local version major minor
     version="$(get_current_version "sing")"
     major="${version%%.*}"
     minor="${version#1.}"
@@ -3266,15 +3267,16 @@ split_singbox_config() {
   mkdir -p "$target_dir"
 
   local KEYS=""
-  eval $(jsonfilter -i "$src_file" -e 'KEYS=@')
+  eval "$(jsonfilter -i "$src_file" -e 'KEYS=@')"
 
   local schema_val=""
-  schema_val=$(jsonfilter -i "$src_file" -e "@['\$schema']")
+  schema_val="$(jsonfilter -i "$src_file" -e "@['\$schema']")"
 
   local schema_prefix=""
   if [ -n "$schema_val" ]; then
-    schema_val=$(echo "$schema_val" | sed 's#\\/#/#g')
-    schema_prefix=$(printf '  "$schema": "%s",\n' "$schema_val")
+    schema_val="$(echo "$schema_val" | sed 's#\\/#/#g')"
+    # shellcheck disable=SC2016
+    schema_prefix="$(printf '  "$schema": "%s",\n' "$schema_val")"
   fi
 
   for key in $KEYS; do
@@ -3465,7 +3467,7 @@ show_menu() {
   output="$output\n  $(green "0.") Exit\n"
 
   show_header
-  echo -e "$output"
+  printf '%b\n' "$output"
 
   max_attempts=3
   attempt=0
