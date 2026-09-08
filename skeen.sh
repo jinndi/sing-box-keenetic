@@ -3231,17 +3231,29 @@ format_config() {
 }
 
 run_api() {
+  local error_msg="Only supported in $SINGBOX_NAME 1.14.0+"
   shift
-  local version
 
   check_tty
   get_singbox_config
   if [ -f "$SINGBOX_BIN" ]; then
+    local version major minor 
     version="$(get_current_version "sing")"
-    case "$version" in
-      1.14*) "$SINGBOX_BIN" api "$@" ;;
-      *) exiterr "Only supported in $SINGBOX_NAME 1.14 +" ;;
-    esac
+    major="${version%%.*}"
+    minor="${version#1.}"
+    minor="${minor%%.*}"
+
+    if [ "$major" -eq 1 ] && [ "$minor" -eq 14 ]; then
+      case "$version" in
+        *alpha* | *beta*) exiterr "$error_msg" ;;
+      esac
+    fi
+
+    if [ "${version%%.*}" -ge 1 ] && [ "$minor" -ge 14 ]; then
+      "$SINGBOX_BIN" api "$@"
+    else
+      exiterr "$error_msg"
+    fi
   else
     exiterr "Executable file $SINGBOX_NAME is missing"
   fi
