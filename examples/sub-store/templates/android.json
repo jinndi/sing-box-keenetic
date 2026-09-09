@@ -6,7 +6,7 @@
 
 Отличия от desktop шаблона:
 
- - Убраны селекторы: `"🏴‍☠️ Torrent"`, `"🕹️ Games"`, `"🤖 AI"` и rule_set для них.
+ - Убраны селекторы: `"🧲 Torrent"`, `"🕹️ Games"`, `"🤖 AI"` и rule_set для них.
  - Добавлены небезопасные TCP/UDP порты в правила (rules) для их отклонения, подробнее см. в файле config-commented.jsonc.
  - Добавлена опция `route.override_android_vpn`.
  - Убран селектор "🚦 FINAL" и только с ним связанный "❌ REJECT" типа block, вместо этого задан final "🌍 Proxy".

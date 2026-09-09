@@ -116,7 +116,7 @@
   "outbounds": [
     { "tag": "🌍 Proxy",   "type": "selector", "outbounds": [], "interrupt_exist_connections": true },
     { "tag": "🇷🇺 RU",      "type": "selector", "outbounds": [], "interrupt_exist_connections": true },
-    { "tag": "🏴‍☠️ Torrent", "type": "selector", "outbounds": [], "interrupt_exist_connections": true },
+    { "tag": "🧲 Torrent", "type": "selector", "outbounds": [], "interrupt_exist_connections": true },
     { "tag": "🕹️ Games",   "type": "selector", "outbounds": [], "interrupt_exist_connections": true },
     { "tag": "🤖 AI",      "type": "selector", "outbounds": [], "interrupt_exist_connections": true },
     { "tag": "🌍 Auto",    "type": "urltest",  "outbounds": [], "interval": "10m", "tolerance": 75 },
@@ -138,7 +138,7 @@
       { "rule_set": "private", "outbound": "🔌 DIRECT" },
       { "rule_set": "cheburnet", "outbound": "🔌 DIRECT" },
       { "protocol": "ntp", "outbound": "🇷🇺 RU" },
-      { "protocol": "bittorrent", "outbound": "🏴‍☠️ Torrent" },
+      { "protocol": "bittorrent", "outbound": "🧲 Torrent" },
       { "rule_set": "games", "outbound": "🕹️ Games" },
       { "rule_set": "ai", "outbound": "🤖 AI" },
       { "rule_set": "telegramip", "outbound": "🌍 Proxy" },
@@ -163,9 +163,9 @@
     "rule_set": [
       {
         "type": "remote",
-        "tag": [ 
-          "ipdetect", "private", "adguard", "cheburnet", "trackers", "filter", 
-          "games", "ai", "proxy", "ru", "ruip", "telegramip" 
+        "tag": [
+          "ipdetect", "private", "adguard", "cheburnet", "trackers", "filter",
+          "games", "ai", "proxy", "ru", "ruip", "telegramip"
         ],
         "url": "https://cdn.jsdelivr.net/gh/jinndi/singbox_ruleset@main/{tag}.srs",
         "update_interval": "48h0m0s"
@@ -268,7 +268,7 @@ let allProxyTagsRU = singboxProxies.map(p => p.tag)
 // (тут нужно отредактировать, если вы меняли предложенный шаблон на свои группы селекторов/urltest)
 config.outbounds.find(p => p.tag === '🌍 Proxy')?.outbounds?.push('🌍 Auto', ...allProxyTags)
 config.outbounds.find(p => p.tag === '🇷🇺 RU')?.outbounds?.push('🇷🇺 Auto', '🔌 DIRECT', ...allProxyTagsRU)
-config.outbounds.find(p => p.tag === '🏴‍☠️ Torrent')?.outbounds?.push('🌍 Auto', '🔌 DIRECT', ...allProxyTags)
+config.outbounds.find(p => p.tag === '🧲 Torrent')?.outbounds?.push('🌍 Auto', '🔌 DIRECT', ...allProxyTags)
 config.outbounds.find(p => p.tag === '🕹️ Games')?.outbounds?.push('🌍 Auto', '🔌 DIRECT', ...allProxyTags)
 config.outbounds.find(p => p.tag === '🤖 AI')?.outbounds?.push('🌍 Auto', '🔌 DIRECT', ...allProxyTags)
 config.outbounds.find(p => p.tag === '🌍 Auto')?.outbounds?.push(...allProxyTags)
@@ -368,7 +368,7 @@ const proxyGroups = {
   // Selectors
   '🌍 Proxy':   getTags(allTags, '✅|😎', true),  // из всех тегов удаляем содержащие ✅ или 😎
   '🇷🇺 RU':      getTags(allTags, '🇷🇺|🔌'),        // из всех тегов оставляем содержащие 🇷🇺 или 🔌
-  '🏴‍☠️ Torrent': getTags(allTags, '🔌|✅|😎'),     // из всех тегов оставляем содержащие 🔌, ✅ или 😎
+  '🧲 Torrent': getTags(allTags, '🔌|✅|😎'),     // из всех тегов оставляем содержащие 🔌, ✅ или 😎
   '🕹️ Games':   getTags(allTags, '😎|Hys'),       // из всех тегов оставляем содержащие 😎 или подстроку Hys
   '🤖 AI':      getTags(allTags, '🇳🇴|😎'),        // из всех тегов оставляем содержащие 🇳🇴 или 😎
   // URL-Test группы (принимают ТОЛЬКО реальные прокси-узлы из proxiesTags)

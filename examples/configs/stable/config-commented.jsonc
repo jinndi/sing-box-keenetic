@@ -29,7 +29,7 @@
 // (это можно проверить на странице вашего роутера, или обратившись к общедоступному каталогу DNS).
 // Например, если DNS-сервер по умолчанию - 77.88.8.8, вы можете установить его на 77.88.8.0/24.
 
-// 5. Для работы селектора «🏴‍☠️ Torrent» убедитесь, что в торрент-клиенте для подключения к пирам выбран протокол «только TCP»
+// 5. Для работы селектора «🧲 Torrent» убедитесь, что в торрент-клиенте для подключения к пирам выбран протокол «только TCP»
 // и в настройках приватности не установлено принудительное шифрование.
 // Скорость при прямом подключении создаёт нагрузку на процессор, сопоставимую с работой без маршрутизации трафика через sing-box.
 // При этом решение сохраняет работоспособность в любых окружениях.
@@ -359,7 +359,7 @@
     // в противном случае видео зависнет до тех пор, пока не истечет время ожидания старого соединения.
     { "tag": "🌍 Proxy",   "type": "selector", "outbounds": [ "🌍 Auto", "🔒 TROYAN" ], "default": "🔒 TROYAN", "interrupt_exist_connections": true },
     { "tag": "🇷🇺 RU",      "type": "selector", "outbounds": [ "🇷🇺 Auto", "🔌 DIRECT", "🇷🇺 TROYAN" ], "interrupt_exist_connections": true },
-    { "tag": "🏴‍☠️ Torrent", "type": "selector", "outbounds": [ "🌍 Auto", "🔌 DIRECT", "🔒 TROYAN" ], "interrupt_exist_connections": true },
+    { "tag": "🧲 Torrent", "type": "selector", "outbounds": [ "🌍 Auto", "🔌 DIRECT", "🔒 TROYAN" ], "interrupt_exist_connections": true },
     { "tag": "🕹️ Games",   "type": "selector", "outbounds": [ "🌍 Auto", "🔌 DIRECT", "🔒 TROYAN" ], "interrupt_exist_connections": true },
     { "tag": "🤖 AI",      "type": "selector", "outbounds": [ "🌍 Auto", "🔌 DIRECT", "🔒 TROYAN" ], "interrupt_exist_connections": true },
 
@@ -468,7 +468,7 @@
       { "protocol": "ntp", "outbound": "🇷🇺 RU" },
 
       // Правила 12: Назаначаем выходы (outbound) Нашим "Гибким" селекторам/рулсетам
-      { "protocol": "bittorrent", "outbound": "🏴‍☠️ Torrent" },
+      { "protocol": "bittorrent", "outbound": "🧲 Torrent" },
       { "rule_set": "games", "outbound": "🕹️ Games" },
       { "rule_set": "ai", "outbound": "🤖 AI" },
       { "rule_set": "telegramip", "outbound": "🌍 Proxy" },
@@ -589,9 +589,9 @@
       // jinndi (https://github.com/jinndi/singbox_ruleset)
       {
         "type": "remote",
-        "tag": [ 
-          "ipdetect", "private", "adguard", "cheburnet", "trackers", "filter", 
-          "games",    "ai",      "proxy",    "ru",       "ruip",     "telegramip" 
+        "tag": [
+          "ipdetect", "private", "adguard", "cheburnet", "trackers", "filter",
+          "games",    "ai",      "proxy",    "ru",       "ruip",     "telegramip"
         ],
         "url": "https://cdn.jsdelivr.net/gh/jinndi/singbox_ruleset@main/{tag}.srs",
         "update_interval": "48h0m0s"
