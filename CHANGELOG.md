@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.5.0](https://github.com/jinndi/SKeen/compare/SKeen-v5.4.2...SKeen-v5.5.0) (2026-09-09)
+
+
+### 🚀 Feat
+
+* **cli:** implement `headers` command for subscription spoofing ([d1c1678](https://github.com/jinndi/SKeen/commit/d1c167899307a20df1a17dd8aad27cc7139e3bc9))
+
 ## [5.4.2](https://github.com/jinndi/SKeen/compare/SKeen-v5.4.1...SKeen-v5.4.2) (2026-09-08)
 
 
