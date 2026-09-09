@@ -3348,6 +3348,25 @@ sync_config() {
   fi
 }
 
+gen_headers() {
+  local hwid line pair os ver mod json
+
+  check_tty
+  hwid="$(tr '[:lower:]' '[:upper:]' </proc/sys/kernel/random/uuid)"
+  line="$(printf '%s\n' \
+    "Windows|10.0.19045,Windows 10|10.0.22631,Windows 11|10.0.26100,Windows 11 24H2|10.0.19042,Windows 10 20H2" \
+    "Linux|5.15.0-88,Ubuntu 22.04 LTS|6.8.0-45,Ubuntu 24.04 LTS|6.1.0-21,Debian 12|6.9.7,Arch Linux|6.6.2,Manjaro" \
+    "macOS|14.5.0,MacBook Pro|14.6.0,MacBook Air|15.0.0,Mac mini|13.6.7,MacBook Pro M1" |
+      awk 'BEGIN{srand()} {a[NR]=$0} END{print a[int(rand()*NR)+1]}')"
+  pair="$(printf '%s' "${line#*|}" | tr '|' '\n' | awk 'BEGIN{srand()} {a[NR]=$0} END{print a[int(rand()*NR)+1]}')"
+  os="${line%%|*}"; ver="${pair%%,*}"; mod="${pair#*,}"
+  json="{\"x-hwid\":\"$hwid\",\"x-device-os\":\"$os\",\"x-ver-os\":\"$ver\",\"x-device-model\":\"$mod\"}"
+
+  cyan "Generated random device parameters:"
+  for k in x-hwid x-device-os x-ver-os x-device-model; do printf '  %s: ' "$k"; green "$(jsonfilter -s "$json" -e "@['$k']")"; done
+  printf '\n'; cyan "Sub-Store: Add the following parameter to the end of your subscription link:"; green "$(printf '%s' "#headers=$json" | sed 's/ /%20/g')"
+}
+
 show_iface() {
   check_tty
 
@@ -3526,6 +3545,7 @@ Available Commands:
   reset   - Reset $WORK_DIR to default
   clean   - Clear $SINGBOX_NAME cache file
   sync    - Synchronize $SINGBOX_NAME configuration
+  headers - Generate fake client headers for subscriptions
 
 OpkgTun (KeeneticOS v5+):
   tun create [ipv4] [name] - Create interface with IP address and name
@@ -3551,6 +3571,7 @@ if [ -f "$SKEEN_SCRIPT" ]; then
   kill) kill_proc ;;
   status) status ;;
   version) version ;;
+  iface) show_iface ;;
   update) check_updates ;;
   test) test_firewall ;;
   deps)
@@ -3566,7 +3587,7 @@ if [ -f "$SKEEN_SCRIPT" ]; then
   reset) config_reset ;;
   clean) clean_cache ;;
   sync) sync_config "$2" ;;
-  iface) show_iface ;;
+  headers) gen_headers ;;
   tun)
     check_tty
     release_version_ge5 || return 1

@@ -475,6 +475,7 @@ When using the router’s Web CLI, add `exec` before the command. For example: `
 | `reset` | Reset `/opt/etc/skeen` to default | - |
 | `clean`² | Clear Sing-box cache file | ✓ |
 | `sync`³ | Synchronize Sing-box configuration | ✓ |
+| `headers` | Generate fake client headers for subscriptions | - |
 
 1 - archive name can be passed as the second parameter with a `.tar` extension to immediately start the backup restore process
 
